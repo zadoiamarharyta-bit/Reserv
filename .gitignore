@@ -1,0 +1,8 @@
+data/*.json
+log/
+*.log
+.DS_Store
+
+/vendor/bundle/
+data/cache/
+data/uploads/

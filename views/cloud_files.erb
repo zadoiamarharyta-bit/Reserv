@@ -1,0 +1,48 @@
+<section class="cloud-dashboard">
+  <header class="section-heading">
+    <div>
+      <p class="eyebrow">Google Drive</p>
+      <h2>Збережені текстові файли</h2>
+    </div>
+    <a href="/" role="button" class="secondary">Назад до дашборду</a>
+  </header>
+
+  <article class="cloud-summary">
+    <span>Кількість файлів</span>
+    <strong class="metric"><%= @cloud_files.length %></strong>
+  </article>
+
+  <% if @cloud_files.empty? %>
+    <p class="muted">Поки немає файлів, збережених через сповіщення.</p>
+  <% else %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Файл</th><th>Оригінальний шлях</th><th>Збережено</th><th>Розмір</th><th>Відновлення</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% @cloud_files.each do |file| %>
+            <tr>
+              <td><strong><%= h(file['name']) %></strong></td>
+              <td class="path"><%= h(file['original_path']) %></td>
+              <td><%= h(format_time(file['created_at'])) %></td>
+              <td><%= h(format_bytes(file['size'].to_i)) %></td>
+              <td>
+                <form method="post" action="/cloud/<%= h(file['id']) %>/restore" class="restore-form">
+                  <input name="target" placeholder="Папка або повний шлях">
+                  <label><input type="checkbox" name="overwrite" value="1"> Замінити існуючий</label>
+                  <button class="small" type="submit">Відновити</button>
+                </form>
+              </td>
+              <td>
+                <form method="post" action="/cloud/<%= h(file['id']) %>/delete" onsubmit="return confirm('Видалити файл із Google Диск?')">
+                  <button class="danger small" type="submit">Видалити</button>
+                </form>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</section>

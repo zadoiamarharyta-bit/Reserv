@@ -1,0 +1,27 @@
+<section>
+  <h2>Edit backup task</h2>
+  <form method="post" action="/tasks/<%= h(@task['id']) %>/edit" class="task-form">
+    <label>Task name
+      <input name="name" value="<%= h(@task['name']) %>" required>
+    </label>
+    <label>Source file or directory
+      <input name="source" value="<%= h(@task['source']) %>" required>
+    </label>
+    <label>Destination backup folder
+      <input name="destination" value="<%= h(@task['destination']) %>" required>
+    </label>
+    <label>Interval
+      <input type="number" name="interval" min="1" value="<%= h(@task['interval']) %>" required>
+    </label>
+    <label>Unit
+      <select name="unit">
+        <option value="minutes" <%= 'selected' if @task['unit'] == 'minutes' %>>Minutes</option>
+        <option value="hours" <%= 'selected' if @task['unit'] == 'hours' %>>Hours</option>
+      </select>
+    </label>
+    <div class="button-row">
+      <button type="submit">Save changes</button>
+      <a href="/" role="button" class="secondary">Cancel</a>
+    </div>
+  </form>
+</section>

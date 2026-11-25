@@ -1,0 +1,109 @@
+<section class="dashboard-grid">
+  <article class="count-card">
+    <p class="eyebrow">Google Drive</p>
+    <strong class="metric"><%= @cloud_files.length %></strong>
+    <span>збережених файлів</span>
+  </article>
+
+  <article class="dashboard-card">
+    <h2>Додати файл для резервного копіювання</h2>
+
+    <form method="post" action="/upload/cache" enctype="multipart/form-data" class="drop-zone upload-cache">
+      <input type="file" name="file" id="cache-file" required>
+      <label for="cache-file">
+        <span class="drop-icon" aria-hidden="true">⇩</span>
+        <strong>Перетягніть файл сюди</strong>
+        <small>або натисніть, щоб вибрати файл</small>
+      </label>
+      <span class="selected-file" id="cache-file-name">Файл не вибрано</span>
+      <button type="submit">Створити резервну копію</button>
+    </form>
+
+    <form method="post" action="/upload/unzip" enctype="multipart/form-data" class="drop-zone upload-unzip">
+      <input type="file" name="file" id="zip-file" accept=".zip,application/zip" required>
+      <label for="zip-file">
+        <span class="drop-icon" aria-hidden="true">📦</span>
+        <strong>Перетягніть ZIP сюди</strong>
+        <small>або натисніть, щоб вибрати архів</small>
+      </label>
+      <span class="selected-file" id="zip-file-name">Архів не вибрано</span>
+      <label>Папка відновлення
+        <input name="target" placeholder="/home/marharyta/Restored" required>
+      </label>
+      <label><input type="checkbox" name="overwrite" value="1"> Замінити існуючі файли</label>
+      <button type="submit">Розархівувати</button>
+    </form>
+
+    <details class="path-archive">
+      <summary>Або вкажіть локальні шляхи</summary>
+      <form method="post" action="/archive/zip" class="simple-form">
+        <label>Шлях до файлу
+          <input name="source" placeholder="/home/marharyta/example.txt" required>
+        </label>
+        <label>Папка для ZIP
+          <input name="destination" placeholder="/home/marharyta/Archives" required>
+        </label>
+        <button type="submit">Архівувати окремо у ZIP</button>
+      </form>
+
+      <form method="post" action="/archive/unzip" class="simple-form">
+        <label>Шлях до ZIP-файлу
+          <input name="zip_path" placeholder="/home/marharyta/Archives/example.zip" required>
+        </label>
+        <label>Папка відновлення
+          <input name="target" placeholder="/home/marharyta/Restored" required>
+        </label>
+        <button type="submit">Розархівувати окремий ZIP</button>
+      </form>
+    </details>
+  </article>
+
+  <article class="dashboard-card">
+    <h2>Відновити файл із Google Диск</h2>
+    <% if @cloud_files.empty? %>
+      <p class="muted">Збережених файлів на Google Диск немає.</p>
+    <% else %>
+      <form method="post" action="/cloud/<%= h(@cloud_files.first['id']) %>/restore" class="simple-form">
+        <label>Файл
+          <select name="file" onchange="this.form.action='/cloud/' + this.selectedOptions[0].dataset.id + '/restore'">
+            <% @cloud_files.each do |file| %>
+              <option value="<%= h(file['id']) %>" data-id="<%= h(file['id']) %>"><%= h(file['name']) %></option>
+            <% end %>
+          </select>
+        </label>
+        <label>Локальний шлях або папка
+          <input name="target" placeholder="/home/marharyta/відновлено.txt">
+        </label>
+        <button type="submit">Відновити із хмари</button>
+      </form>
+
+      <div class="cloud-links">
+        <a href="/cloud_files" role="button" class="secondary">Усі файли Google Диск</a>
+      </div>
+    <% end %>
+  </article>
+
+  <% if @cache_files.any? %>
+    <article class="dashboard-card">
+      <h2>Відновлення з кешу</h2>
+      <div class="cache-list">
+        <% @cache_files.each do |record| %>
+          <article class="cache-item">
+            <div>
+              <strong><%= h(record['name']) %></strong>
+              <small><%= h(record['original_path']) %></small>
+              <small><%= h(format_time(record['created_at'])) %> · <%= h(format_bytes(record['size'].to_i)) %></small>
+            </div>
+            <form method="post" action="/cache/<%= h(record['id']) %>/restore" class="restore-inline">
+              <input name="target" placeholder="Шлях для відновлення">
+              <button type="submit">Відновити з кешу</button>
+            </form>
+            <form method="post" action="/cache/<%= h(record['id']) %>/delete" onsubmit="return confirm('Видалити архів із кешу?')">
+              <button class="danger" type="submit">Видалити</button>
+            </form>
+          </article>
+        <% end %>
+      </div>
+    </article>
+  <% end %>
+</section>

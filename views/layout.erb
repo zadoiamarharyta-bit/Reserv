@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backup Manager</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <main class="container">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Local backup utility</p>
+        <h1>Backup Manager</h1>
+      </div>
+    </header>
+    <% if session[:flash] %>
+      <% flash = session.delete(:flash) %>
+      <article class="flash <%= h(flash['status']) %>"><%= h(flash['message']) %></article>
+    <% end %>
+    <%= yield %>
+  </main>
+  <script>
+    document.querySelectorAll('.drop-zone').forEach((zone) => {
+      const input = zone.querySelector('input[type="file"]');
+      const name = zone.querySelector('.selected-file');
+
+      const showFile = () => {
+        if (input.files && input.files.length) {
+          name.textContent = input.files.length === 1
+            ? input.files[0].name
+            : `${input.files.length} файлів вибрано`;
+        }
+      };
+
+      input.addEventListener('change', showFile);
+
+      ['dragenter', 'dragover'].forEach((eventName) => {
+        zone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          zone.classList.add('drag-over');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach((eventName) => {
+        zone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          zone.classList.remove('drag-over');
+        });
+      });
+
+      zone.addEventListener('drop', (event) => {
+        if (!event.dataTransfer.files.length) return;
+        try {
+          const transfer = new DataTransfer();
+          transfer.items.add(event.dataTransfer.files[0]);
+          input.files = transfer.files;
+          showFile();
+        } catch (_) {}
+      });
+    });
+  </script>
+</body>
+</html>
